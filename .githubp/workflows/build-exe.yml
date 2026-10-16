@@ -1,0 +1,42 @@
+name: Build EXE
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install PyQt5 pyqtgraph pyinstaller
+
+      - name: Build with PyInstaller
+        run: |
+          pyinstaller --noconfirm --clean --onedir --windowed `
+            --name BaoxinSimulator `
+            --collect-all pyqtgraph `
+            --add-data "config;config" `
+            main.py
+
+      - name: Package to zip
+        run: |
+          Compress-Archive -Path dist\BaoxinSimulator\* `
+                           -DestinationPath dist\BaoxinSimulator.zip -Force
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BaoxinSimulator
+          path: dist/BaoxinSimulator.zip
