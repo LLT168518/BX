@@ -22,15 +22,14 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install pyinstaller
-        # 如果你有 requirements.txt，请取消下面这行的注释
+        pip install PyQt5
+        # 如果你有 requirements.txt，最好用下面这行代替上面两行：
         # pip install -r requirements.txt
-        # 根据你的项目，可能还需要安装 PySide6 或 PyQt5，例如：
-        # pip install PySide6
 
     - name: 使用 PyInstaller 打包
       run: |
         # --noconfirm 覆盖旧文件 --windowed 隐藏黑框 --name 指定exe名字
-        pyinstaller --noconfirm --windowed --name BaoxinSimulator main.py
+         pyinstaller --noconfirm --windowed --name BaoxinSimulator --collect-all PyQt5 main.py
 
     - name: 上传打包后的文件 (Artifact)
       uses: actions/upload-artifact@v4
