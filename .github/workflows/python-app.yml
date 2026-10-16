@@ -1,16 +1,39 @@
+name: 构建并打包 EXE
 
-name: 基础 Python 检查
-
-on: [push]
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch: # 允许手动点击按钮运行
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest # ⚠️ 重要：打包Windows EXE必须用 windows 环境
+
     steps:
-    - uses: actions/checkout@v4
+    - name: 检出代码
+      uses: actions/checkout@v4
+
     - name: 设置 Python
       uses: actions/setup-python@v5
       with:
         python-version: '3.10'
-    - name: 运行一个简单命令
-      run: echo "🎉 代码已成功推送，工作流运行正常！"
+
+    - name: 安装依赖
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyinstaller
+        # 如果你有 requirements.txt，请取消下面这行的注释
+        # pip install -r requirements.txt
+        # 根据你的项目，可能还需要安装 PySide6 或 PyQt5，例如：
+        # pip install PySide6
+
+    - name: 使用 PyInstaller 打包
+      run: |
+        # --noconfirm 覆盖旧文件 --windowed 隐藏黑框 --name 指定exe名字
+        pyinstaller --noconfirm --windowed --name BaoxinSimulator main.py
+
+    - name: 上传打包后的文件 (Artifact)
+      uses: actions/upload-artifact@v4
+      with:
+        name: BaoxinSimulator
+        path: dist/BaoxinSimulator/
